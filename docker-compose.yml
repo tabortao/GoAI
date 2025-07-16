@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  goai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${HTTP_PORT:-8080}:${HTTP_PORT:-8080}"
+    env_file:
+      - .env
+    # The default command starts the API server.
+    # You can override this to run CLI commands, e.g.,
+    # docker-compose run goai generate "Hello, world!"
+    command: ["server"]
+    volumes:
+      # Mount source code for development (optional, requires a tool like air for hot-reload)
+      - .:/app
+    depends_on:
+      - ollama
+
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    container_name: ollama
+
+volumes:
+  ollama_data:
