@@ -71,7 +71,7 @@ GoAI 支持三种主要的使用方式：**命令行 (CLI)**、**HTTP API** 和 
 #### 启动 API 服务
 
 ```bash
-./goai server
+.\goai.exe server
 ```
 此命令会启动一个 HTTP 服务器，监听在 `.env` 文件中配置的 `HTTP_PORT` 端口（默认为 `8080`）。
 
@@ -81,7 +81,7 @@ GoAI 支持三种主要的使用方式：**命令行 (CLI)**、**HTTP API** 和 
 
 **基础用法:**
 ```bash
-./goai generate "写一首关于宇宙的诗"
+.\goai.exe generate "写一首关于宇宙的诗"
 ```
 
 **常用参数:**
@@ -94,17 +94,17 @@ GoAI 支持三种主要的使用方式：**命令行 (CLI)**、**HTTP API** 和 
 
 *   **翻译任务:**
     ```bash
-    ./goai generate "请将以下文本翻译成英语：" --text "你好，我的祖国是中国！"
+    .\goai.exe generate "请将以下文本翻译成英语：" --text "你好，我的祖国是中国！"
     ```
 
 *   **文本摘要 (流式输出):**
     ```bash
-    ./goai generate "请为以下文章生成摘要：" --text "人工智能（AI）是研究、开发用于模拟、延伸和扩展人的智能的理论、方法、技术及应用系统的一门新的技术科学...（此处省略长文本）" --stream
+    .\goai.exe generate "请为以下文章生成摘要：" --text "人工智能（AI）是研究、开发用于模拟、延伸和扩展人的智能的理论、方法、技术及应用系统的一门新的技术科学...（此处省略长文本）" --stream
     ```
 
 *   **使用模板进行角色扮演:**
     ```bash
-    ./goai generate "你是一位经验丰富的软件工程师。" --text "请解释一下什么是 RESTful API？" --template "角色设定: {{.prompt}}\n\n问题: {{.text}}"
+    .\goai.exe generate "你是一位经验丰富的软件工程师。" --text "请解释一下什么是 RESTful API？" --template "角色设定: {{.prompt}}\n\n问题: {{.text}}"
     ```
 
 #### 交互式聊天 (`chat`)
@@ -112,13 +112,13 @@ GoAI 支持三种主要的使用方式：**命令行 (CLI)**、**HTTP API** 和 
 启动一个可以持续对话的交互式会话。
 
 ```bash
-./goai chat --model openai
+.\goai.exe chat --model openai
 ```
 在会话中，输入 `exit` 或 `quit` 来结束。
 
 ### 2. HTTP API
 
-请先使用 `./goai server` 或 Docker 启动服务。API 提供了与 CLI 类似的功能。
+请先使用 `.\goai.exe server` 或 Docker 启动服务。API 提供了与 CLI 类似的功能。
 
 #### 端点: `POST /api/v1/generate`
 
