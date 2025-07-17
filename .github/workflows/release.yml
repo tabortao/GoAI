@@ -31,9 +31,9 @@ jobs:
         id: set_name
         run: |
           if [ "${{ matrix.goos }}" == "windows" ]; then
-            echo "exe_name=goai.exe" >> $GITHUB_ENV
+            echo "exe_name=goai-${{ matrix.goos }}-${{ github.ref_name }}.exe" >> $GITHUB_ENV
           else
-            echo "exe_name=goai" >> $GITHUB_ENV
+            echo "exe_name=goai-${{ matrix.goos }}-${{ github.ref_name }}" >> $GITHUB_ENV
           fi
 
       - name: Build Go Binary
