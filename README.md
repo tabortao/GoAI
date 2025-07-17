@@ -159,7 +159,26 @@ GoAI 提供了两种使用方式：命令行工具和 HTTP API。
   响应将是 `text/event-stream` 格式。
 
 ```powershell
-Invoke-RestMethod -Uri "http://localhost:8080/api/v1/generate" -Method Post -Headers @{"Content-Type"="application/json"} -Body '{"prompt":"请将以下文本翻译成英语：","text":"你好，我的祖国是中国！",stream":true}'
+# 摘要请求
+Invoke-RestMethod -Uri "http://localhost:8080/api/v1/generate" `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json; charset=utf-8" } `
+  -Body (@{
+    "prompt" = "请为以下文章生成摘要："
+    "text" = "人工智能是当今科技领域最热门的话题之一..."
+    "stream" = $true
+  } | ConvertTo-Json)
+
+# 翻译请求
+Invoke-RestMethod -Uri "http://localhost:8080/api/v1/generate" `
+  -Method Post `
+  -ContentType "application/json; charset=utf-8" `
+  -Body (@{
+    "prompt" = "请将以下文本翻译成英语："
+    "text" = "你好，我的祖国是中国！"
+    "model" = "openai"
+  } | ConvertTo-Json -Compress)
+
 ```
 
 

@@ -50,7 +50,7 @@ func (h *APIHandler) nonStreamedGenerate(c *gin.Context, req *models.GenerateReq
 }
 
 func (h *APIHandler) streamedGenerate(c *gin.Context, req *models.GenerateRequest) {
-	c.Header("Content-Type", "text/event-stream")
+	c.Header("Content-Type", "text/event-stream; charset=utf-8")
 	c.Header("Cache-Control", "no-cache")
 	c.Header("Connection", "keep-alive")
 	c.Header("Access-Control-Allow-Origin", "*")
