@@ -1,0 +1,45 @@
+# .github/workflows/release.yml
+
+name: Release Go Binaries
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Set output executable name
+        id: set_name
+        run: |
+          if [ "${{ matrix.goos }}" == "windows" ]; then
+            echo "exe_name=goai.exe" >> $GITHUB_ENV
+          else
+            echo "exe_name=goai" >> $GITHUB_ENV
+          fi
+
+      - name: Build Go Binary
+        run: |
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -v -o ${{ env.exe_name }} ./cmd/cli/main.go
+
+      - name: Create Release and Upload Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.exe_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
