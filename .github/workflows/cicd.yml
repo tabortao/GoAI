@@ -5,6 +5,12 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: '发布版本标签 (例如: v1.0.0)'
+        required: true
+        type: string
 
 jobs:
   build-and-push:
@@ -31,5 +37,5 @@ jobs:
           context: .
           push: true
           tags: |
-            DOCKERHUB_USERNAME/goai:latest
-            DOCKERHUB_USERNAME/goai:${{ github.sha }}
+            tabortoa/goai:latest
+            tabortoa/goai:${{ github.sha }}
