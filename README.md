@@ -85,12 +85,18 @@ GoAI 提供了两种使用方式：命令行工具和 HTTP API。
 **参数:**
 - `--stream`: 启用流式输出，实时返回内容。
 - `--model <name>`: 指定要使用的模型 (如 `openai` 或 `ollama`)。
+- `--text <text>`: 向提示添加额外的文本内容。
+- `--template <template>`: 指定用于格式化提示的模板。
 
 **示例:**
 ```bash
 # 使用 Ollama 模型进行流式生成
 ./goai generate "你好，世界！" --model ollama --stream
+
+# 使用模板和额外的文本
+./goai generate "总结以下文本" --text "这是一段需要总结的长文本..." --template "指令: {{.prompt}}\n文本: {{.text}}"
 ```
+
 
 #### `chat` - 交互式聊天
 
@@ -115,11 +121,15 @@ GoAI 提供了两种使用方式：命令行工具和 HTTP API。
 ```json
 {
   "prompt": "用户的输入文本",
+  "text": "可选的额外文本",
+  "template": "可选的模板字符串，例如：指令: {{.prompt}}",
   "stream": false,
   "model": "openai"
 }
 ```
 - `prompt` (string, required): 输入的提示文本。
+- `text` (string, optional): 附加到提示后的额外文本。
+- `template` (string, optional): 用于格式化 `prompt` 和 `text` 的模板。
 - `stream` (boolean, optional): 是否以流式返回，默认为 `false`。
 - `model` (string, optional): 指定模型，如果留空则使用默认配置的模型。
 
@@ -130,7 +140,8 @@ GoAI 提供了两种使用方式：命令行工具和 HTTP API。
   curl -X POST http://localhost:8080/api/v1/generate \
   -H "Content-Type: application/json" \
   -d '{
-    "prompt": "解释一下什么是黑洞",
+    "prompt": "请将以下文本翻译成英语：",
+    "text": "你好，我的祖国是中国！",
     "model": "openai"
   }'
   ```
@@ -140,14 +151,15 @@ GoAI 提供了两种使用方式：命令行工具和 HTTP API。
   curl -X POST http://localhost:8080/api/v1/generate \
   -H "Content-Type: application/json" \
   -d '{
-    "prompt": "给我讲一个关于旅行的短故事",
+    "prompt": "请为以下文章生成摘要：",
+    "text": "人工智能是当今科技领域最热门的话题之一...",
     "stream": true
   }'
   ```
   响应将是 `text/event-stream` 格式。
 
 ```powershell
-Invoke-RestMethod -Uri "http://localhost:8080/api/v1/generate" -Method Post -Headers @{"Content-Type"="application/json"} -Body '{"prompt":"tell me a story","stream":true}'
+Invoke-RestMethod -Uri "http://localhost:8080/api/v1/generate" -Method Post -Headers @{"Content-Type"="application/json"} -Body '{"prompt":"请将以下文本翻译成英语：","text":"你好，我的祖国是中国！",stream":true}'
 ```
 
 

@@ -40,7 +40,7 @@ func (h *APIHandler) GenerateHandler(c *gin.Context) {
 }
 
 func (h *APIHandler) nonStreamedGenerate(c *gin.Context, req *models.GenerateRequest) {
-	completion, err := h.service.Generate(c.Request.Context(), req.Prompt, req.Model, false, nil)
+	completion, err := h.service.Generate(c.Request.Context(), req, nil)
 	if err != nil {
 		h.logger.Error("failed to generate completion", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to generate completion"})
@@ -57,7 +57,7 @@ func (h *APIHandler) streamedGenerate(c *gin.Context, req *models.GenerateReques
 
 	writer := &streamWriter{c.Writer}
 	c.Stream(func(w io.Writer) bool {
-		_, err := h.service.Generate(c.Request.Context(), req.Prompt, req.Model, true, writer)
+		_, err := h.service.Generate(c.Request.Context(), req, writer)
 		if err != nil {
 			h.logger.Error("error during stream generation", "error", err)
 			// Since we are streaming, we can't set a JSON error response here.

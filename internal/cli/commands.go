@@ -5,6 +5,7 @@ import (
 	"GoAI/internal/config"
 	"GoAI/internal/core"
 	"GoAI/internal/llm"
+	"GoAI/internal/models"
 	"GoAI/pkg/utils"
 	"bufio"
 	"context"
@@ -20,8 +21,10 @@ import (
 )
 
 var (
-	stream    bool
+	stream   bool
 	modelName string
+	text      string
+	template  string
 )
 
 // NewRootCmd creates the root command for the CLI application.
@@ -56,6 +59,8 @@ func newGenerateCmd() *cobra.Command {
 	}
 	cmd.Flags().BoolVar(&stream, "stream", false, "Enable streaming output")
 	cmd.Flags().StringVar(&modelName, "model", "", "Specify the model to use (e.g., openai, ollama)")
+	cmd.Flags().StringVar(&text, "text", "", "Add text to the prompt")
+	cmd.Flags().StringVar(&template, "template", "", "Specify a template to use")
 	return cmd
 }
 
@@ -112,7 +117,6 @@ func runServer(cmd *cobra.Command, args []string) {
 
 func runGenerate(cmd *cobra.Command, args []string) {
 	cfg, logger := setup()
-	prompt := args[0]
 
 	llmManager, err := llm.NewLLMManager(cfg)
 	if err != nil {
@@ -121,7 +125,15 @@ func runGenerate(cmd *cobra.Command, args []string) {
 	}
 
 	service := core.NewService(llmManager, logger)
-	_, err = service.Generate(context.Background(), prompt, modelName, stream, os.Stdout)
+	req := &models.GenerateRequest{
+		Prompt:   args[0],
+		Text:     text,
+		Template: template,
+		Stream:   stream,
+		Model:    modelName,
+	}
+
+	_, err = service.Generate(context.Background(), req, os.Stdout)
 	if err != nil {
 		logger.Error("failed to generate text", "error", err)
 		os.Exit(1)
@@ -152,7 +164,13 @@ func runChat(cmd *cobra.Command, args []string) {
 			break
 		}
 
-		_, err := service.Generate(context.Background(), prompt, modelName, true, os.Stdout)
+		req := &models.GenerateRequest{
+			Prompt: prompt,
+			Stream: true,
+			Model:  modelName,
+		}
+
+		_, err := service.Generate(context.Background(), req, os.Stdout)
 		if err != nil {
 			logger.Error("failed to generate response", "error", err)
 		}

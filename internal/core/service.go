@@ -2,7 +2,10 @@ package core
 
 import (
 	"GoAI/internal/llm"
+	"GoAI/internal/models"
+	"GoAI/pkg/utils"
 	"context"
+	"fmt"
 	"github.com/tmc/langchaingo/llms"
 	"io"
 	"log/slog"
@@ -23,14 +26,14 @@ func NewService(llmManager *llm.LLMManager, logger *slog.Logger) *Service {
 }
 
 // Generate performs text generation based on a prompt.
-func (s *Service) Generate(ctx context.Context, prompt, modelName string, stream bool, writer io.Writer) (string, error) {
+func (s *Service) Generate(ctx context.Context, req *models.GenerateRequest, writer io.Writer) (string, error) {
 	var llmModel llms.Model
 	var err error
 
-	if modelName != "" {
-		llmModel, err = s.llmManager.GetLLM(modelName)
+	if req.Model != "" {
+		llmModel, err = s.llmManager.GetLLM(req.Model)
 		if err != nil {
-			s.logger.Error("failed to get specified llm", "model", modelName, "error", err)
+			s.logger.Error("failed to get specified llm", "model", req.Model, "error", err)
 			return "", err
 		}
 	} else {
@@ -41,10 +44,15 @@ func (s *Service) Generate(ctx context.Context, prompt, modelName string, stream
 		}
 	}
 
-	s.logger.Info("generating text", "prompt", prompt, "model", modelName, "stream", stream)
+	prompt, err := s.buildPrompt(req)
+	if err != nil {
+		return "", err
+	}
+
+	s.logger.Info("generating text", "prompt", prompt, "model", req.Model, "stream", req.Stream)
 
 	var streamOption llms.CallOption
-	if stream {
+	if req.Stream {
 		streamOption = llms.WithStreamingFunc(func(ctx context.Context, chunk []byte) error {
 			if _, err := writer.Write(chunk); err != nil {
 				return err
@@ -64,4 +72,20 @@ func (s *Service) Generate(ctx context.Context, prompt, modelName string, stream
 	}
 
 	return completion, nil
+}
+
+func (s *Service) buildPrompt(req *models.GenerateRequest) (string, error) {
+	fullPrompt := req.Prompt
+	if req.Text != "" {
+		fullPrompt = fmt.Sprintf("%s %s", req.Prompt, req.Text)
+	}
+
+	if req.Template != "" {
+		data := map[string]string{
+			"prompt": fullPrompt,
+		}
+		return utils.ApplyTemplate(req.Template, data)
+	}
+
+	return fullPrompt, nil
 }
