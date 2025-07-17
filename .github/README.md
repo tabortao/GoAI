@@ -12,7 +12,7 @@
 - **作业 (Jobs):**
     1.  **`build-and-push`**:
         - 从代码仓库中检出最新的代码。
-        - 设置 Go 环境 (版本 1.22)。
+        - 设置 Go 环境 (版本 1.24)。
         - 使用存储在 GitHub Secrets 中的凭据登录到 Docker Hub。
         - 使用项目根目录下的 `Dockerfile` 文件构建 Docker 镜像。
         - 将镜像推送到 Docker Hub，并附带两个标签：

@@ -10,6 +10,9 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
     strategy:
       matrix:
         goos: [linux, windows, darwin]
