@@ -45,7 +45,8 @@ jobs:
       - name: Set output executable name
         id: set_name
         run: |
-          RELEASE_TAG_CLEAN=${{ env.RELEASE_TAG }//\//-}
+          # Clean the release tag using shell string replacement
+          RELEASE_TAG_CLEAN=$(echo "${{ env.RELEASE_TAG }}" | sed 's/\//-/g')
           if [ "${{ matrix.goos }}" == "windows" ]; then
             echo "exe_name=goai-${{ matrix.goos }}-${RELEASE_TAG_CLEAN}.exe" >> $GITHUB_ENV
           else
@@ -55,7 +56,7 @@ jobs:
       - name: Build Go Binary
         run: |
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -v -o ${{ env.exe_name }} ./cmd/cli/main.go
-
+          
       - name: Create Release and Upload Asset
         uses: softprops/action-gh-release@v1
         with:
