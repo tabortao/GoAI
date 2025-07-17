@@ -133,12 +133,19 @@ func runGenerate(cmd *cobra.Command, args []string) {
 		Model:    modelName,
 	}
 
-	_, err = service.Generate(context.Background(), req, os.Stdout)
+	completion, err := service.Generate(context.Background(), req, os.Stdout)
 	if err != nil {
 		logger.Error("failed to generate text", "error", err)
 		os.Exit(1)
 	}
-	fmt.Println() // Add a newline for better formatting
+
+	// In non-streaming mode, the result is returned from the function and must be printed.
+	// In streaming mode, the result is written directly to os.Stdout within the service.
+	if !req.Stream {
+		fmt.Print(completion)
+	}
+
+	fmt.Println() // Add a final newline for better formatting.
 }
 
 func runChat(cmd *cobra.Command, args []string) {
