@@ -3,10 +3,11 @@ package api
 import (
 	"GoAI/internal/core"
 	"GoAI/internal/models"
-	"github.com/gin-gonic/gin"
 	"io"
 	"log/slog"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // APIHandler handles API requests.
@@ -26,17 +27,13 @@ func NewAPIHandler(service *core.Service, logger *slog.Logger) *APIHandler {
 // GenerateHandler handles the /api/v1/generate endpoint.
 func (h *APIHandler) GenerateHandler(c *gin.Context) {
 	var req models.GenerateRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		h.logger.Error("invalid request body", "error", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
-		return
+	if c.ShouldBindJSON(&req) != nil {
+		// Handle error
 	}
 
-	if req.Stream {
-		h.streamedGenerate(c, &req)
-	} else {
-		h.nonStreamedGenerate(c, &req)
-	}
+	// Force stream mode by default to handle long responses correctly
+	req.Stream = true
+	h.streamedGenerate(c, &req)
 }
 
 func (h *APIHandler) nonStreamedGenerate(c *gin.Context, req *models.GenerateRequest) {

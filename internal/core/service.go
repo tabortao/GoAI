@@ -6,9 +6,10 @@ import (
 	"GoAI/pkg/utils"
 	"context"
 	"fmt"
-	"github.com/tmc/langchaingo/llms"
 	"io"
 	"log/slog"
+
+	"github.com/tmc/langchaingo/llms"
 )
 
 // Service encapsulates the core business logic.
@@ -61,16 +62,22 @@ func (s *Service) Generate(ctx context.Context, req *models.GenerateRequest, wri
 		})
 		// When streaming, the final result is returned through the writer, so the return value of Generate is empty.
 		_, err := llms.GenerateFromSinglePrompt(ctx, llmModel, prompt, streamOption)
-		return "", err
+		if err != nil {
+			s.logger.Error("LLM stream generation failed", "model", req.Model, "error", err)
+			return "", err
+		}
+		s.logger.Info("LLM stream generation completed successfully", "model", req.Model)
+		return "", nil
 	}
 
 	// Not streaming
-	completion, err := llms.GenerateFromSinglePrompt(ctx, llmModel, prompt)
+	completion, err := llms.GenerateFromSinglePrompt(ctx, llmModel, prompt, llms.WithMaxTokens(32768))
 	if err != nil {
-		s.logger.Error("failed to generate text", "error", err)
+		s.logger.Error("LLM text generation failed", "model", req.Model, "error", err)
 		return "", err
 	}
 
+	s.logger.Info("LLM text generation completed successfully", "model", req.Model)
 	return completion, nil
 }
 
