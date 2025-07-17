@@ -6,6 +6,12 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: '发布版本标签 (例如: v1.0.0)'
+        required: false
+        type: string
 
 jobs:
   build-and-release:
@@ -30,10 +36,11 @@ jobs:
       - name: Set output executable name
         id: set_name
         run: |
+          RELEASE_TAG=${{ github.event.inputs.release_tag || github.ref_name }}
           if [ "${{ matrix.goos }}" == "windows" ]; then
-            echo "exe_name=goai-${{ matrix.goos }}-${{ github.ref_name }}.exe" >> $GITHUB_ENV
+            echo "exe_name=goai-${{ matrix.goos }}-${RELEASE_TAG}.exe" >> $GITHUB_ENV
           else
-            echo "exe_name=goai-${{ matrix.goos }}-${{ github.ref_name }}" >> $GITHUB_ENV
+            echo "exe_name=goai-${{ matrix.goos }}-${RELEASE_TAG}" >> $GITHUB_ENV
           fi
 
       - name: Build Go Binary
@@ -44,5 +51,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ env.exe_name }}
+          tag_name: ${{ github.event.inputs.release_tag || github.ref_name }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}""
