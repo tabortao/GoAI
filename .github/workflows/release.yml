@@ -36,7 +36,8 @@ jobs:
       - name: Set output executable name
         id: set_name
         run: |
-          RELEASE_TAG=${{ github.event.inputs.release_tag || github.ref_name }}
+          RAW_TAG=${{ github.event.inputs.release_tag || github.ref_name }}
+          RELEASE_TAG=${RAW_TAG//\//-}
           if [ "${{ matrix.goos }}" == "windows" ]; then
             echo "exe_name=goai-${{ matrix.goos }}-${RELEASE_TAG}.exe" >> $GITHUB_ENV
           else
