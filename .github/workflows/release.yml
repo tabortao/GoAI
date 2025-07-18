@@ -56,7 +56,7 @@ jobs:
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -v -o ${{ env.exe_name }} ./cmd/cli
           
       - name: Create Release and Upload Asset
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2 # Updated to v2
         with:
           files: ${{ env.exe_name }}
           tag_name: ${{ env.RELEASE_TAG }}
