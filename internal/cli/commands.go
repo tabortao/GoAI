@@ -1,195 +1,78 @@
 package cli
 
 import (
-	"GoAI/internal/api"
 	"GoAI/internal/config"
-	"GoAI/internal/core"
 	"GoAI/internal/llm"
-	"GoAI/internal/models"
-	"GoAI/pkg/utils"
 	"bufio"
 	"context"
 	"fmt"
-	"github.com/spf13/cobra"
-	"log"
-	"log/slog"
-	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
-	"time"
+	"strings"
+
+	"github.com/tmc/langchaingo/llms"
 )
 
-var (
-	stream   bool
-	modelName string
-	text      string
-	template  string
-)
-
-// NewRootCmd creates the root command for the CLI application.
-func NewRootCmd() *cobra.Command {
-	rootCmd := &cobra.Command{
-		Use:   "goai",
-		Short: "GoAI is a versatile AI text processing tool.",
-		Long:  `A dual-mode application that provides both a RESTful API and a command-line interface for interacting with Large Language Models.`,
-	}
-
-	rootCmd.AddCommand(newServerCmd())
-	rootCmd.AddCommand(newGenerateCmd())
-	rootCmd.AddCommand(newChatCmd())
-
-	return rootCmd
+// streamCallback 是一个简单的回调函数，用于将流式响应实时打印到控制台
+func streamCallback(ctx context.Context, chunk []byte) error {
+	fmt.Print(string(chunk))
+	return nil
 }
 
-func newServerCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "server",
-		Short: "Start the HTTP API server",
-		Run:   runServer,
-	}
-}
+// Run 启动交互式聊天 CLI
+func Run(cfg *config.AIConfig) error {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Printf("欢迎来到 GoAI 聊天模式! (使用模型: %s) 输入 'exit' 退出。\n", cfg.Model)
 
-func newGenerateCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "generate [prompt]",
-		Short: "Generate text from a single prompt",
-		Args:  cobra.ExactArgs(1),
-		Run:   runGenerate,
-	}
-	cmd.Flags().BoolVar(&stream, "stream", false, "Enable streaming output")
-	cmd.Flags().StringVar(&modelName, "model", "", "Specify the model to use (e.g., openai, ollama)")
-	cmd.Flags().StringVar(&text, "text", "", "Add text to the prompt")
-	cmd.Flags().StringVar(&template, "template", "", "Specify a template to use")
-	return cmd
-}
-
-func newChatCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "chat",
-		Short: "Start an interactive chat session",
-		Run:   runChat,
-	}
-	cmd.Flags().StringVar(&modelName, "model", "", "Specify the model to use for the chat session (e.g., openai, ollama)")
-	return cmd
-}
-
-func runServer(cmd *cobra.Command, args []string) {
-	cfg, logger := setup()
-
-	llmManager, err := llm.NewLLMManager(cfg)
+	llmManager, err := llm.NewManager(cfg)
 	if err != nil {
-		logger.Error("failed to create llm manager", "error", err)
-		os.Exit(1)
+		return fmt.Errorf("无法创建LLM管理器: %w", err)
 	}
 
-	service := core.NewService(llmManager, logger)
-	handler := api.NewAPIHandler(service, logger)
-	router := api.SetupRouter(handler)
-
-	srv := &http.Server{
-		Addr:    ":" + cfg.HTTPPort,
-		Handler: router,
-	}
-
-	go func() {
-		logger.Info("starting server", "port", cfg.HTTPPort)
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Error("server failed to start", "error", err)
-			os.Exit(1)
-		}
-	}()
-
-	// Graceful shutdown
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	logger.Info("shutting down server...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
-		logger.Error("server shutdown failed", "error", err)
-		os.Exit(1)
-	}
-	logger.Info("server exited gracefully")
-}
-
-func runGenerate(cmd *cobra.Command, args []string) {
-	cfg, logger := setup()
-
-	llmManager, err := llm.NewLLMManager(cfg)
-	if err != nil {
-		logger.Error("failed to create llm manager", "error", err)
-		os.Exit(1)
-	}
-
-	service := core.NewService(llmManager, logger)
-	req := &models.GenerateRequest{
-		Prompt:   args[0],
-		Text:     text,
-		Template: template,
-		Stream:   stream,
-		Model:    modelName,
-	}
-
-	completion, err := service.Generate(context.Background(), req, os.Stdout)
-	if err != nil {
-		logger.Error("failed to generate text", "error", err)
-		os.Exit(1)
-	}
-
-	// In non-streaming mode, the result is returned from the function and must be printed.
-	// In streaming mode, the result is written directly to os.Stdout within the service.
-	if !req.Stream {
-		fmt.Print(completion)
-	}
-
-	fmt.Println() // Add a final newline for better formatting.
-}
-
-func runChat(cmd *cobra.Command, args []string) {
-	cfg, logger := setup()
-
-	llmManager, err := llm.NewLLMManager(cfg)
-	if err != nil {
-		logger.Error("failed to create llm manager", "error", err)
-		os.Exit(1)
-	}
-
-	service := core.NewService(llmManager, logger)
-	scanner := bufio.NewScanner(os.Stdin)
-
-	fmt.Println("Starting interactive chat session. Type 'exit' or 'quit' to end.")
 	for {
-		fmt.Print("> ")
-		if !scanner.Scan() {
+		fmt.Print("\n> ")
+		input, _ := reader.ReadString('\n')
+		input = strings.TrimSpace(input)
+
+		if input == "exit" {
 			break
 		}
-		prompt := scanner.Text()
-		if prompt == "exit" || prompt == "quit" {
-			break
+		if input == "" {
+			continue
 		}
 
-		req := &models.GenerateRequest{
-			Prompt: prompt,
-			Stream: true,
-			Model:  modelName,
+		messages := []llms.MessageContent{
+			llms.TextParts(llms.ChatMessageTypeHuman, input),
 		}
 
-		_, err := service.Generate(context.Background(), req, os.Stdout)
+		fmt.Println("AI:")
+		_, err := llmManager.GenerateContent(context.Background(), messages, cfg.Temperature, 4096, streamCallback)
 		if err != nil {
-			logger.Error("failed to generate response", "error", err)
+			fmt.Fprintf(os.Stderr, "\n生成内容时出错: %v\n", err)
 		}
-		fmt.Println()
+		fmt.Println() // 在AI响应后换行
 	}
+
+	return nil
 }
 
-func setup() (config.Config, *slog.Logger) {
-	cfg, err := config.LoadConfig()
+// Generate 执行一次性内容生成
+func Generate(cfg *config.AIConfig, prompt string) error {
+	llmManager, err := llm.NewManager(cfg)
 	if err != nil {
-		log.Fatalf("failed to load configuration: %v", err)
+		return fmt.Errorf("无法创建LLM管理器: %w", err)
 	}
-	logger := utils.NewLogger(cfg.LogLevel)
-	return cfg, logger
+
+	messages := []llms.MessageContent{
+		llms.TextParts(llms.ChatMessageTypeSystem, "你是一个通用AI助手，负责根据用户的请求生成内容。"),
+		llms.TextParts(llms.ChatMessageTypeHuman, prompt),
+	}
+
+	fmt.Println("正在生成内容...")
+
+	_, err = llmManager.GenerateContent(context.Background(), messages, cfg.Temperature, 4096, streamCallback)
+	if err != nil {
+		return fmt.Errorf("\n生成内容时出错: %w", err)
+	}
+	fmt.Println() // 在所有内容生成后换行
+	return nil
 }

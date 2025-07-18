@@ -1,21 +1,15 @@
 package api
 
 import (
+	"GoAI/internal/config"
+
 	"github.com/gin-gonic/gin"
 )
 
-// SetupRouter sets up the API routes.
-func SetupRouter(handler *APIHandler) *gin.Engine {
-	r := gin.Default()
-
-	// Health check endpoint
-	r.GET("/health", handler.HealthCheckHandler)
-
-	// API v1 group
-	v1 := r.Group("/api/v1")
+// RegisterRoutes registers the API routes
+func RegisterRoutes(router *gin.Engine, cfg *config.Config) {
+	api := router.Group("/api/v1")
 	{
-		v1.POST("/generate", handler.GenerateHandler)
+		api.POST("/generate", GenerateHandler(cfg))
 	}
-
-	return r
 }

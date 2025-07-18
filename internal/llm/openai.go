@@ -1,23 +1,19 @@
 package llm
 
 import (
-	"github.com/tmc/langchaingo/llms"
+	"GoAI/internal/config"
+
 	"github.com/tmc/langchaingo/llms/openai"
 )
 
-// NewOpenAIClient creates a new OpenAI LLM client.
-func NewOpenAIClient(token, baseURL, model string) (llms.Model, error) {
-	opts := []openai.Option{
-		openai.WithToken(token),
+func newOpenAI(cfg *config.AIConfig) (*openai.LLM, error) {
+	llm, err := openai.New(
+		openai.WithModel(cfg.Model),
+		openai.WithToken(cfg.Token),
+		openai.WithBaseURL(cfg.URL),
+	)
+	if err != nil {
+		return nil, err
 	}
-
-	if baseURL != "" {
-		opts = append(opts, openai.WithBaseURL(baseURL))
-	}
-
-	if model != "" {
-		opts = append(opts, openai.WithModel(model))
-	}
-
-	return openai.New(opts...)
+	return llm, nil
 }

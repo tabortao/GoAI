@@ -112,9 +112,9 @@ GoAI 支持三种主要的使用方式：**命令行 (CLI)**、**HTTP API** 和 
 启动一个可以持续对话的交互式会话。
 
 ```bash
-.\goai.exe chat --model openai
+.\goai.exe chat --model goai-chat
 ```
-在会话中，输入 `exit` 或 `quit` 来结束。
+在会话中，输入 `exit` 来结束。
 
 ### 2. HTTP API
 
@@ -129,7 +129,7 @@ GoAI 支持三种主要的使用方式：**命令行 (CLI)**、**HTTP API** 和 
   "text": "可选的额外文本",
   "template": "可选的模板字符串，例如：指令: {{.prompt}}",
   "stream": false,
-  "model": "openai"
+  "model": "goai-chat"
 }
 ```
 
