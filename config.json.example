@@ -1,4 +1,5 @@
 {
+    "gin_mode": "release",
     "default_model": "qwen-plus",
     "models": {
         "qwen-plus": {
