@@ -4,11 +4,9 @@ services:
     restart: always
     ports:
       - "1388:8080"
-    env_file:
-      - .env
     command: ["server"]
     volumes:
-      - ./data:/app 
+      - ./config.json:/root/config.json 
     #   - ollama
 
   # ollama:
