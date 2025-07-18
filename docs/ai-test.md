@@ -1,6 +1,6 @@
 
 ## 运行环境测试
-Invoke-RestMethod -Uri "https://go.sdgarden.top/api/v1/generate" `
+Invoke-RestMethod -Uri "https://go.xxx.top/api/v1/generate" `
   -Method Post `
   -ContentType "application/json; charset=utf-8" `
   -Body (@{
