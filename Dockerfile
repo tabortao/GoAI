@@ -23,7 +23,7 @@ COPY --from=builder /app/goai .
 
 # Copy the .env file (or template)
 # In a real scenario, you might manage secrets differently
-COPY .env.example .env
+
 
 # Set the entrypoint
 ENTRYPOINT ["./goai"]
