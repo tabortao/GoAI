@@ -15,6 +15,11 @@ type Server struct {
 
 // NewServer creates a new server
 func NewServer(cfg *config.Config) *Server {
+	if cfg.GinMode == gin.ReleaseMode {
+		gin.SetMode(gin.ReleaseMode)
+	} else {
+		gin.SetMode(gin.DebugMode)
+	}
 	router := gin.Default()
 	server := &Server{
 		router: router,

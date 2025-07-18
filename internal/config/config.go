@@ -16,6 +16,7 @@ type AIConfig struct {
 
 // Config 存储所有AI模型的配置信息
 type Config struct {
+	GinMode      string              `json:"gin_mode"`
 	DefaultModel string              `json:"default_model"`
 	Models       map[string]AIConfig `json:"models"`
 }
