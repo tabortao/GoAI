@@ -1,6 +1,6 @@
 services:
   goai:
-    image: tabortoa/goai
+    image: tabortoa/goai #国内用户镜像加速 dk.nastool.de/tabortoa/goai
     restart: always
     ports:
       - "1388:8080"
