@@ -143,7 +143,7 @@ GoAI CLI 基于 Cobra 构建，提供清晰的子命令结构。所有命令都�
   "prompt": "用户的指令或问题",
   "text": "可选的额外文本内容",
   "model": "可选的模型名称，例如：gpt-4o",
-  "stream": true // 默认开启流式输出，即使不指定或设置为false，API 也会尝试流式响应
+  "stream": true
 }
 ```
 
