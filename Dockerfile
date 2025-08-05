@@ -18,8 +18,12 @@ FROM alpine:latest
 
 WORKDIR /root/
 
+
 # Copy the binary from the builder stage
 COPY --from=builder /app/goai .
+
+# Copy web static files
+COPY --from=builder /app/web ./web
 
 # Copy the .env file (or template)
 # In a real scenario, you might manage secrets differently
