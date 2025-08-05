@@ -21,49 +21,54 @@ GoAI 是一个多功能的AI文本处理服务，通过单一代码库同时提�
 
 ### 2. 安装与配置
 
-1.  **克隆项目**
-    ```bash
-    git clone https://github.com/tabortao/GoAI.git
-    cd GoAI
-    ```
 
-2.  **配置 `config.json`**
-    GoAI 使用 `config.json` 来管理所有 AI 模型配置。请复制 `config.json.example` 到 `config.json`，并根据您的需求修改。
-    ```bash
-    cp config.json.example config.json
-    ```
-    编辑 `config.json` 文件，至少配置一个 AI 模型。以下是一个示例结构：
-    ```json
-    {
-        "default_model": "qwen-plus",
-        "models": {
-            "qwen-plus": {
-                "url": "https://dashscope.aliyuncs.com/compatible-mode/v1/",
-                "token": "your-aliyun-token",
-                "model": "qwen-plus",
-                "temperature": 0.7
-            },
-            "gpt-4o": {
-                "url": "https://api.openai.com/v1",
-                "token": "your-openai-token",
-                "model": "gpt-4o",
-                "temperature": 0.7
-            },
-            "siliconflow-qwen-32b": {
-                "url": "https://api.siliconflow.cn/v1",
-                "token": "your-siliconflow-token",
-                "model": "Qwen/Qwen-32B-Chat",
-                "temperature": 0.7
-            }
-        }
-    }
-    ```
-    请将 `your-aliyun-token`、`your-openai-token` 和 `your-siliconflow-token` 替换为您的实际 API 密钥。
+1. **克隆项目**
 
-3.  **安装依赖**
-    ```bash
-    go mod tidy
-    ```
+   ```bash
+   git clone https://github.com/tabortao/GoAI.git
+   cd GoAI
+   ```
+2. **配置** `config.json`
+   GoAI 使用 `config.json` 来管理所有 AI 模型配置。请复制 `config.json.example` 到 `config.json`，并根据您的需求修改。
+
+   ```bash
+   cp config.json.example config.json
+   ```
+
+   编辑 `config.json` 文件，至少配置一个 AI 模型。以下是一个示例结构：
+
+   ```json
+   {
+       "default_model": "qwen-plus",
+       "models": {
+           "qwen-plus": {
+               "url": "https://dashscope.aliyuncs.com/compatible-mode/v1/",
+               "token": "your-aliyun-token",
+               "model": "qwen-plus",
+               "temperature": 0.7
+           },
+           "gpt-4o": {
+               "url": "https://api.openai.com/v1",
+               "token": "your-openai-token",
+               "model": "gpt-4o",
+               "temperature": 0.7
+           },
+           "siliconflow-qwen-32b": {
+               "url": "https://api.siliconflow.cn/v1",
+               "token": "your-siliconflow-token",
+               "model": "Qwen/Qwen-32B-Chat",
+               "temperature": 0.7
+           }
+       }
+   }
+   ```
+
+   请将 `your-aliyun-token`、`your-openai-token` 和 `your-siliconflow-token` 替换为您的实际 API 密钥。
+3. **安装依赖**
+
+   ```bash
+   go mod tidy
+   ```
 
 ### 3. 构建可执行文件
 
@@ -88,6 +93,7 @@ GoAI CLI 基于 Cobra 构建，提供清晰的子命令结构。所有命令都�
 ```bash
 .\goai.exe server [--port <端口号>]
 ```
+
 此命令会启动一个 HTTP 服务器，默认监听在 `8080` 端口。您可以通过 `--port` 标志指定其他端口。
 
 #### 文本生成 (`generate`)
@@ -95,40 +101,45 @@ GoAI CLI 基于 Cobra 构建，提供清晰的子命令结构。所有命令都�
 用于执行各种文本生成任务，支持流式输出。
 
 **用法:**
+
 ```bash
 .\goai.exe generate [prompt] [--model <模型名>] [--text <附加文本>]
 ```
 
 **参数:**
+
 - `[prompt]`: 主要的指令或问题。如果提供了 `--text`，则 `prompt` 通常是指令（例如：“请翻译”）。
 - `--model <name>`: 指定要使用的模型名称（例如 `gpt-4o`）。如果未指定，将使用 `config.json` 中 `default_model`。
 - `--text <content>`: 提供额外的长文本内容，通常与 `prompt` 结合使用（例如，要翻译或总结的文本）。
 
 **场景示例:**
 
-*   **翻译任务:**
-    ```bash
-    .\goai.exe generate "请将以下文本翻译成英语，不要有过多的描述：" --text "你好，我的祖国是中国！"
-    ```
+- **翻译任务:**
 
-*   **文本摘要:**
-    ```bash
-    .\goai.exe generate "请为以下文章生成摘要：" --text "人工智能（AI）是研究、开发用于模拟、延伸和扩展人的智能的理论、方法、技术及应用系统的一门新的技术科学..."
-    ```
+  ```bash
+  .\goai.exe generate "请将以下文本翻译成英语，不要有过多的描述：" --text "你好，我的祖国是中国！"
+  ```
+- **文本摘要:**
 
-*   **简单提问:**
-    ```bash
-    .\goai.exe generate "请解释一下什么是 RESTful API？"
-    ```
+  ```bash
+  .\goai.exe generate "请为以下文章生成摘要：" --text "人工智能（AI）是研究、开发用于模拟、延伸和扩展人的智能的理论、方法、技术及应用系统的一门新的技术科学..."
+  ```
+- **简单提问:**
+
+  ```bash
+  .\goai.exe generate "请解释一下什么是 RESTful API？"
+  ```
 
 #### 交互式聊天 (`chat`)
 
 启动一个可以持续对话的交互式会话，支持流式输出。
 
 **用法:**
+
 ```bash
 .\goai.exe chat [--model <模型名>]
 ```
+
 在会话中，输入 `exit` 来结束。
 
 ### 2. HTTP API
@@ -138,6 +149,7 @@ GoAI CLI 基于 Cobra 构建，提供清晰的子命令结构。所有命令都�
 #### 端点: `POST /api/v1/generate`
 
 **请求体 (JSON):**
+
 ```json
 {
   "prompt": "用户的指令或问题",
@@ -149,84 +161,88 @@ GoAI CLI 基于 Cobra 构建，提供清晰的子命令结构。所有命令都�
 
 **场景示例:**
 
-*   **翻译任务 (cURL):
-    ```bash
-    curl -X POST http://localhost:8080/api/v1/generate \
-    -H "Content-Type: application/json" \
-    -d '{
-      "prompt": "请将以下文本翻译成英语：",
-      "text": "你好，我的祖国是中国！",
-      "model": "gpt-4o"
-    }'
-    ```
+- \*\*翻译任务 (cURL):
 
-*   **翻译任务 (PowerShell):
-    ```powershell
-    Invoke-RestMethod -Uri "http://localhost:8080/api/v1/generate" \
-      -Method Post \
-      -ContentType "application/json; charset=utf-8" \
-      -Body (@{
-        "prompt" = "请将以下文本翻译成英语："
-        "text" = "你好，我的祖国是中国！"
-        "model" = "gpt-4o"
-      } | ConvertTo-Json -Compress)
-    ```
+  ```bash
+  curl -X POST http://localhost:8080/api/v1/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "请将以下文本翻译成英语：",
+    "text": "你好，我的祖国是中国！",
+    "model": "gpt-4o"
+  }'
+  ```
+- \*\*翻译任务 (PowerShell):
 
-*   **文本摘要 (cURL, 流式):
-    ```bash
-    curl -X POST http://localhost:8080/api/v1/generate \
-    -H "Content-Type: application/json" \
-    -d '{
-      "prompt": "请为以下文章生成摘要：",
-      "text": "人工智能是当今科技领域最热门的话题之一...",
-      "stream": true
-    }'
-    ```
+  ```powershell
+  Invoke-RestMethod -Uri "http://localhost:8080/api/v1/generate" \
+    -Method Post \
+    -ContentType "application/json; charset=utf-8" \
+    -Body (@{
+      "prompt" = "请将以下文本翻译成英语："
+      "text" = "你好，我的祖国是中国！"
+      "model" = "gpt-4o"
+    } | ConvertTo-Json -Compress)
+  ```
+- \*\*文本摘要 (cURL, 流式):
+
+  ```bash
+  curl -X POST http://localhost:8080/api/v1/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "请为以下文章生成摘要：",
+    "text": "人工智能是当今科技领域最热门的话题之一...",
+    "stream": true
+  }'
+  ```
 
 ### 3. Docker 部署与使用
 
 使用 Docker Compose 是推荐的生产环境部署方式。
 
-1.  **启动服务:**
-    确保 `config.json` 文件已根据您的需求配置好。
-    ```bash
-    docker-compose up --build -d
-    ```
-    `-d` 参数使服务在后台运行。
 
-2.  **通过 API 与服务交互:**
-    Docker 服务启动后，API 会暴露在您主机的 `8080` 端口上。您可以像在本地一样，使用 `curl` 或 `Invoke-RestMethod` 等工具直接调用 `http://localhost:8080`。
+1. **启动服务:**
+   确保 `config.json` 文件已根据您的需求配置好。
 
-    **示例 (从您的主机直接调用 Docker 内的服务):
-    ```bash
-    curl -X POST http://localhost:8080/api/v1/generate \
-    -H "Content-Type: application/json" \
-    -d '{"prompt": "Docker 容器内运行的服务，你好！"}'
-    ```
+   ```bash
+   docker-compose up --build -d
+   ```
 
-3.  **在 Docker 容器内执行 CLI 命令:**
-    您也可以进入正在运行的 `goai` 容器，直接执行 CLI 命令。
+   `-d` 参数使服务在后台运行。
+2. **通过 API 与服务交互:**
+   Docker 服务启动后，API 会暴露在您主机的 `8080` 端口上。您可以像在本地一样，使用 `curl` 或 `Invoke-RestMethod` 等工具直接调用 `http://localhost:8080`。
 
-    ```bash
-    # docker exec -it <容器名称或ID> <命令>
-    docker exec -it goai-app ./goai generate "在 Docker 容器内向我问好"
-    ```
-    *注意: `goai-app` 是 `docker-compose.yml` 中定义的服务名，可能会因您的设置而异。*
+   \*\*示例 (从您的主机直接调用 Docker 内的服务):
 
-4.  **查看日志:**
-    ```bash
-    docker-compose logs -f goai-app
-    ```
+   ```bash
+   curl -X POST http://localhost:8080/api/v1/generate \
+   -H "Content-Type: application/json" \
+   -d '{"prompt": "Docker 容器内运行的服务，你好！"}'
+   ```
+3. **在 Docker 容器内执行 CLI 命令:**
+   您也可以进入正在运行的 `goai` 容器，直接执行 CLI 命令。
 
-5.  **停止服务:**
-    ```bash
-    docker-compose down
-    ```
+   ```bash
+   # docker exec -it <容器名称或ID> <命令>
+   docker exec -it goai-app ./goai generate "在 Docker 容器内向我问好"
+   ```
+
+   *注意:* `goai-app` 是 `docker-compose.yml` 中定义的服务名，可能会因您的设置而异。
+4. **查看日志:**
+
+   ```bash
+   docker-compose logs -f goai-app
+   ```
+5. **停止服务:**
+
+   ```bash
+   docker-compose down
+   ```
 
 ## 🛠️ 技术栈
 
 - **语言**: Go 1.24+
-- **核心框架**: 
+- **核心框架**:
   - **HTTP 服务**: Gin
   - **命令行**: Cobra
   - **LLM 集成**: LangChainGo
@@ -260,3 +276,5 @@ GoAI/
 ├── go.mod
 └── README.md              # 项目说明
 ```
+
+
